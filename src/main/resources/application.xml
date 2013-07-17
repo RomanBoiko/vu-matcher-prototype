@@ -1,0 +1,71 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	http://www.directwebremoting.org/schema/spring-dwr
+	http://www.directwebremoting.org/schema/spring-dwr-2.0.xsd">
+
+	<dwr:controller id="dwrController" debug="true">
+		<dwr:config-param name="activeReverseAjaxEnabled"
+			value="true" />
+	</dwr:controller>
+
+	<!-- <dwr:configuration> -->
+	<!-- <dwr:convert type="bean" class="org.uk.ltd.dwr.dev.model.Address" /> -->
+	<!-- </dwr:configuration> -->
+
+	<bean id="ajax.service" class="boikoro.vumatcher.AjaxService">
+		<dwr:remote javascript="AjaxService">
+			<dwr:include method="activeExceptions" />
+		</dwr:remote>
+		<property name="datasource" ref="datasource" />
+	</bean>
+
+	<bean id="datasource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<property name="url" value="jdbc:h2:tcp://localhost/c:/dev/ws/vu-matcher/target/matcher" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+	<bean name="feed.loader" class="boikoro.vumatcher.FeedLoader">
+		<property name="datasource" ref="datasource" />
+	</bean>
+	<bean id="feed.loading.job"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="feed.loader" />
+		<property name="targetMethod" value="loadFiles" />
+	</bean>
+	<bean id="feed.load.trigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="feed.loading.job" />
+		<property name="startDelay" value="2000" />
+		<property name="repeatInterval" value="5000" />
+	</bean>
+
+	<bean name="matcher" class="boikoro.vumatcher.Matcher">
+		<property name="datasource" ref="datasource" />
+	</bean>
+	<bean id="match.job"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="matcher" />
+		<property name="targetMethod" value="matchRecords" />
+	</bean>
+	<bean id="matching.trigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="match.job" />
+		<property name="startDelay" value="8000" />
+		<property name="repeatInterval" value="15000" />
+	</bean>
+
+
+	<bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="autoStartup" value="true" />
+		<property name="waitForJobsToCompleteOnShutdown" value="true" />
+		<property name="triggers">
+			<list>
+				<ref bean="feed.load.trigger" />
+				<ref bean="matching.trigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

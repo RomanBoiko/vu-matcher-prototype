@@ -1,0 +1,6 @@
+trade_id,trade_version,trade_domain,amount,buy_sell,book
+1324,1,FO,13,B,ADF
+43234,2,FO,12,S,ADF
+235,1,FO,12,B,ADF
+23,3,FO,13,S,FDA
+33,5,FO,14,B,FDA

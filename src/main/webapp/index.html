@@ -1,0 +1,29 @@
+<html>
+<head>
+<script type='text/javascript'
+	src='/vu-matcher/dwr/interface/AjaxService.js'></script>
+<script type='text/javascript' src='/vu-matcher/dwr/engine.js'></script>
+<script type='text/javascript' src='/vu-matcher/dwr/util.js'></script>
+<script type='text/javascript'>
+	function hello(){
+		AjaxService.activeExceptions({
+			callback : function(str) {
+				res=""
+				for (var i = 0; i < str.length; i++) {
+					res+=str[i]+"<br/>"
+				}
+				document.getElementById("activeRecords").innerHTML=res
+			}
+		});
+	}
+</script>
+
+</head>
+
+<body onload="hello()">
+	<h3>Vu-Matcher</h3>
+	<a href="console">Database console</a><br/><br/>
+	<h4>Active Records</h4>
+	<div id="activeRecords"></div>
+</body>
+</html>
